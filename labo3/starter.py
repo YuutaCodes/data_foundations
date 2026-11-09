@@ -35,7 +35,7 @@ def validate_transaction(row, seen_ids):
     Voeg een ID pas toe aan seen_ids wanneer alle
     controles succesvol zijn.
     """
-    # TODO: implementeer alle validatieregels.
+    # implementeer alle validatieregels.
 
     if not row["transaction_id"]:
         return None, "transaction_id is empty"
@@ -129,9 +129,9 @@ def run_batch(rows, batch_size=50):
     Meet de wachttijd vanaf aankomst tot verwerking.
     Geef de state terug.
     """
-    # TODO: implementeer batchverwerking.
+    # implementeer batchverwerking.
 
-    # De eerste transactie van een batch wacht dus langer dan de laatste.
+    # De eerste transactie van een batch wacht langer dan de laatste.
     # Dit komt omdat de eerste moet wachten tot de batch vol is voordat deze verwerkt wordt
     # De laatste transactie moet vrijwel niet wachten want deze wordt direct verwerkt.
 
@@ -179,7 +179,7 @@ def run_streaming(rows):
 
     Geef de state terug.
     """
-    # TODO: implementeer streamingverwerking.
+    # implementeer streamingverwerking.
 
     state = new_state()
     seen_ids = set()
@@ -213,17 +213,17 @@ if __name__ == "__main__":
 
     
 
-    # TODO: voer batchverwerking uit.
+    # voer batchverwerking uit.
     batch_state = run_batch(rows)
 
-    # TODO: voer streamingverwerking uit.
+    # voer streamingverwerking uit.
     streaming_state = run_streaming(rows)
 
-    # TODO: toon beide samenvattingen.
+    # toon beide samenvattingen.
     print_summary("Batchverwerking", batch_state)
     print_summary("Streamingverwerking", streaming_state)
 
-    # TODO: controleer of beide methoden dezelfde
+    # controleer of beide methoden dezelfde
     #       inhoudelijke resultaten opleveren.
     assert batch_state["valid"] == streaming_state["valid"]
     assert batch_state["invalid"] == streaming_state["invalid"]
