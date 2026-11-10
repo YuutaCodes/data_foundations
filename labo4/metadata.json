@@ -1,0 +1,17 @@
+{
+  "InvoiceNo": {
+    "description": "Factuurnummer",
+    "datatype": "string",
+    "importance": "hoog"
+  },
+  "StockCode": {
+    "description": "Productcode",
+    "datatype": "string",
+    "importance": "hoog"
+  },
+  "Quantity": {
+    "description": "Aantal verkochte eenheden",
+    "datatype": "int",
+    "importance": "medium"
+  }
+}
