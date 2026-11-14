@@ -9,9 +9,34 @@
     "datatype": "string",
     "importance": "hoog"
   },
+  "Description": {
+    "description": "Productomschrijving",
+    "datatype": "string",
+    "importance": "laag"
+  },
   "Quantity": {
     "description": "Aantal verkochte eenheden",
     "datatype": "int",
     "importance": "medium"
+  },
+  "InvoiceDate": {
+    "description": "Datum en tijdstip van de factuur",
+    "datatype": "datetime",
+    "importance": "medium"
+  },
+  "UnitPrice": {
+    "description": "Prijs per eenheid in pond sterling",
+    "datatype": "float",
+    "importance": "hoog"
+  },
+  "CustomerID": {
+    "description": "Unieke klantidentificatie",
+    "datatype": "float",
+    "importance": "medium"
+  },
+  "Country": {
+    "description": "Land van de klant",
+    "datatype": "string",
+    "importance": "laag"
   }
 }

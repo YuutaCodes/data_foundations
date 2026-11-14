@@ -12,7 +12,12 @@ TYPES = {'i': 'int', 'f': 'float', 'M': 'datetime', 'O': 'string'}
 meta = {
     "InvoiceNo": ("Factuurnummer", "hoog"),
     "StockCode": ("Productcode", "hoog"),
+    "Description": ("Productomschrijving", "laag"),
     "Quantity": ("Aantal verkochte eenheden", "medium"),
+    "InvoiceDate": ("Datum en tijdstip van de factuur", "medium"),
+    "UnitPrice": ("Prijs per eenheid in pond sterling", "hoog"),
+    "CustomerID": ("Unieke klantidentificatie", "medium"),
+    "Country": ("Land van de klant", "laag"),
 }
 
 schema = {
@@ -55,38 +60,39 @@ print(search(metadata.T, tekst="factuur"))
 # Stap 3: Data lineage logboek
 logboek = []
 
-def log(step, columns, rows):
-    logboek.append({
-        "step": step,
-        "columns": columns,
-        "rows": rows
-    })
+def log(step, action, columns, before, after):
+    logboek.append({"step": step, "action": action, "columns": columns,
+                    "rows_before": before, "rows_after": after, "rows_changed": abs(before - after) or after})
 
-print("")
-print("Total rows before de-duplication:" + str(len(df)))
-log(1, [], len(df))
+log("Origineel", "ingeladen", list(df.columns), len(df), len(df))
 
-print("")
-lenBefore = len(df)
+before = len(df)
 df = df.drop_duplicates()
-print("Total rows after de-duplication:" + str(len(df)))
+log("Duplicaten verwijderen", "gefilterd", list(df.columns), before, len(df))
 
-log(2, [], lenBefore - len(df))
-
-print("")
-print("Adding total_sales column")
 df['total_sales'] = df['Quantity'] * df['UnitPrice']
-print(df.head(5))
+log("total_sales toevoegen", "toegevoegd", ["total_sales"], len(df), len(df))
 
-log(3, ['total_sales'], len(df))
-
-print("")
-print("filter quantity > 10")
-lenBefore = len(df)
-dfFilter = df[df["Quantity"] > 10]
-print(dfFilter.head(5))
-
-log(4, ["Quantity"], lenBefore - len(dfFilter))
+before = len(df)
+df_filtered = df[df["Quantity"] > 10]
+log("Filter Quantity > 10", "gefilterd", ["Quantity"], before, len(df_filtered))
 
 print("")
-print(logboek)
+print(pd.DataFrame(logboek).to_string())
+
+# Stap 4: Data lineage visualiseren
+import matplotlib.pyplot as plt
+import networkx as nx
+
+graph = nx.DiGraph()
+labels = [f"{e['step']}\n{e['rows_after']:,} rijen" for e in logboek]
+nx.add_path(graph, labels)
+positions = {label: (i, 0) for i, label in enumerate(labels)}
+
+plt.figure(figsize=(14, 3))
+nx.draw(graph, positions, with_labels=True, node_shape="s", node_size=9000,
+        node_color="lightsteelblue", font_size=9, arrowsize=20)
+plt.title("Data lineage - Online Retail")
+plt.margins(x=0.1)
+plt.savefig("lineage.png", bbox_inches="tight", dpi=150)
+plt.show()
