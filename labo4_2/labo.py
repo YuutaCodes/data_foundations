@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-import seaborn
+import matplotlib.pyplot as plt
 
 # Stap 1: Metadata verzamelen en toevoegen
 df = pd.read_csv("Nashville_housing_data_2013_2016.csv")
@@ -60,7 +60,8 @@ df["Address"] = df["Address"].str.strip().str.replace(r"\s+", " ", regex=True)
 
 ## 1. Volledig dubbele rijen
 zonder_index = df.columns.drop(data_types["technisch"])
-print("Dubbele rijen:", df.duplicated(subset=zonder_index).sum())
+aantal_duplicaten = df.duplicated(subset=zonder_index).sum()
+print("Dubbele rijen:", aantal_duplicaten)
 df = df.drop_duplicates(subset=zonder_index)
 print("Rijen over:", len(df))
 
@@ -88,8 +89,33 @@ print(master_owners.head())
 df = df.merge(master_owners, on=eigenaar_kolommen, how="left")
 print(df[["Parcel ID", "Sale Date", "Owner ID", "Owner Name"]].dropna().head())
 
-print(df.duplicated().sum())
+master_owners.to_csv("master_owners.csv", index=False)
 
-print(df.isnull().sum())
-print(df.isnull().mean())
-seaborn.heatmap(df.isnull())
+# Stap 5: governance check - data quality
+print("Verwijderde duplicaten:", aantal_duplicaten)
+print("Unieke eigenaars:", len(master_owners))
+
+ontbrekend = df.isnull().sum().sort_values(ascending=False)
+compleetheid = (1 - df.isnull().mean()).mul(100).round(1).sort_values()
+print(pd.DataFrame({"ontbrekend": ontbrekend, "compleetheid %": compleetheid}))
+
+compleetheid.plot.barh(figsize=(10, 9), title="Compleetheid per kolom (%)")
+plt.xlabel("% ingevuld")
+plt.ylabel("Kolom")
+plt.tight_layout()
+plt.show()
+
+## Eigenaar- en pandkenmerken zijn maar ~45% compleet: analyses per eigenaar of op bouwkenmerken steunen
+## op minder dan de helft van de verkopen en kunnen dus vertekend zijn. Transactiedata is wel (bijna) volledig.
+
+# Bonus: toegangscontrole simulatie
+rollen = {
+    "admin": df.columns.tolist(),
+    "analist": data_types["master_pand"] + data_types["transactie"],
+    "viewer": ["Property Address", "Property City", "Sale Date", "Sale Price"],
+}
+
+def toon_data(df, rol):
+    return df[rollen[rol]]
+
+print(toon_data(df, "viewer").head())
